@@ -40,6 +40,17 @@ float mapToRGB(float x) {
 	return (x < 0) ? 0 : x * 255;
 }
 
+float step(float a, float x) {
+	return (x >= a) ? 1 : 0;
+}
+
+float stepSmoothly(float a, float b, float x) {
+	if (x > b) return 1;
+	if (x < a) return 0;
+	float mult = 1 / (b - a);
+	return x * mult;
+}
+
 void game_update(void) {
 
 	//This is the shader. Do some math for every pixel.
@@ -53,12 +64,14 @@ void game_update(void) {
 
 		float d = CP_Vector_Length(uv);
 
-		d -= 0.5;
+		d = sin(d * 8 + CP_System_GetSeconds()) / 8;
 		d = fabs(d);
+
+		d = 0.02 / d;
 
 		//MAP the normalized vectors to RGB.
 		d = mapToRGB(d);
-		imgPixelData[i] = CP_Color_Create(d, 0, 0, 255);
+		imgPixelData[i] = CP_Color_Create(d, d, d, 255);
 	}
 	CP_Image_UpdatePixelData(mainImage, imgPixelData);
 	
