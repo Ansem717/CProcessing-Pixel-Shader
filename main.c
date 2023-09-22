@@ -32,7 +32,7 @@ typedef struct {
 } vec3;
 
 void game_init(void) {
-	screenSize = 600;
+	screenSize = 300;
 	CP_System_SetWindowSize(screenSize, screenSize);
 	CP_Settings_ImageMode(CP_POSITION_CORNER);
 	CP_Settings_AntiAlias(0);
@@ -95,10 +95,10 @@ CP_Color v3toColor(vec3 v) {
 }
 
 vec3 palette(float t) {
-	vec3 a = { 1.0, 1.0, 1.0 };
-	vec3 b = { 0.5, 0.5, 0.5 };
+	vec3 a = { 0.5, 0.5, 0.5 };
+	vec3 b = { 1.0, 1.0, 1.0 };
 	vec3 c = { 1.0, 1.0, 1.0 };
-	vec3 d = { 0.512, 0.143, 0.352 };
+	vec3 d = { 0.0, 0.33f, 0.66f };
 
 	//return a + b * cos(6.28318 * (c * t + d));
 
@@ -107,7 +107,16 @@ vec3 palette(float t) {
 	temp = v3Scale(temp, 6.2831f);
 	temp = v3Cos(temp);
 	temp = v3Multiply(temp, b);
-	temp = v3Add(temp, a);
+	temp = v3Add(temp, a); 
+	return temp;
+}
+
+CP_Vector fract(CP_Vector v) {
+	CP_Vector temp = { v.x , v.y };
+	int convertVectorX = (int)v.x;
+	int convertVectorY = (int)v.y;
+	temp.x -= convertVectorX;
+	temp.y -= convertVectorY;
 	return temp;
 }
 
@@ -122,9 +131,11 @@ void game_update(void) {
 			(y/screenSize - 0.5) * 2
 		);
 
+		uv = fract(uv);
+
 		float d = CP_Vector_Length(uv);
 
-		vec3 col = palette(d);
+		vec3 col = palette(d + CP_System_GetSeconds());
 
 		d = sin(d * 8 + CP_System_GetSeconds()) / 8;
 		d = fabs(d);
