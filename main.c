@@ -1,7 +1,7 @@
 //---------------------------------------------------------
 // file:	main.c
-// author:	[NAME]
-// email:	[DIGIPEN EMAIL ADDRESS]
+// author:	Andy Malik
+// email:	andy.malik@digipen.edu
 //
 // brief:	Main entry point for the sample project
 //			of the CProcessing library
@@ -13,31 +13,19 @@
 //---------------------------------------------------------
 
 #include "cprocessing.h"
+#include "pixelshader.h"
 
-// use CP_Engine_SetNextGameState to specify this function as the initialization function
-// this function will be called once at the beginning of the program
-void game_init(void)
-{
-	// initialize variables and CProcessing settings for this gamestate
+vec3 test;
+
+void game_init(void) {
 }
 
-// use CP_Engine_SetNextGameState to specify this function as the update function
-// this function will be called repeatedly every frame
-void game_update(void)
-{
-	// check input, update simulation, render etc.
+void game_update(void) {
 }
 
-// use CP_Engine_SetNextGameState to specify this function as the exit function
-// this function will be called once just before leaving the current gamestate
-void game_exit(void)
-{
-	// shut down the gamestate and cleanup any dynamic memory
+void game_exit(void) {
 }
 
-// main() the starting point for the program
-// CP_Engine_SetNextGameState() tells CProcessing which functions to use for init, update and exit
-// CP_Engine_Run() is the core function that starts the simulation
 int main(void)
 {
 	CP_Engine_SetNextGameState(game_init, game_update, game_exit);
