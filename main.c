@@ -25,10 +25,17 @@ CP_Color* imgPixelData;
 int screenSize;
 int arraySize;
 
+typedef struct {
+	float x;
+	float y;
+	float z;
+} vec3;
+
 void game_init(void) {
 	screenSize = 600;
 	CP_System_SetWindowSize(screenSize, screenSize);
 	CP_Settings_ImageMode(CP_POSITION_CORNER);
+	CP_Settings_AntiAlias(0);
 
 	mainImage = CP_Image_Screenshot(0, 0, screenSize, screenSize);
 	arraySize = screenSize * screenSize;
@@ -37,7 +44,7 @@ void game_init(void) {
 }
 
 float mapToRGB(float x) {
-	return (x < 0) ? 0 : x * 255;
+	return (x < 0) ? 0 : (x > 255) ? 255 : x * 255;
 }
 
 float step(float a, float x) {
@@ -49,6 +56,59 @@ float stepSmoothly(float a, float b, float x) {
 	if (x < a) return 0;
 	float mult = 1 / (b - a);
 	return x * mult;
+}
+
+vec3 v3Scale(vec3 v, float s) {
+	vec3 temp = { 0,0,0 };
+	temp.x = v.x * s; 
+	temp.y = v.y * s;
+	temp.z = v.z * s;
+	return temp;
+};
+
+vec3 v3Multiply(vec3 v, vec3 u) {
+	vec3 temp = { 0,0,0 };
+	temp.x = v.x * u.x; 
+	temp.y = v.y * u.y;
+	temp.z = v.z * u.z;
+	return temp;
+}
+
+vec3 v3Add(vec3 v, vec3 u) {
+	vec3 temp = { 0,0,0 };
+	temp.x = v.x + u.x;
+	temp.y = v.y + u.y;
+	temp.z = v.z + u.z;
+	return temp;
+}
+
+vec3 v3Cos(vec3 v) {
+	vec3 temp = { 0,0,0 };
+	temp.x = cos(v.x);
+	temp.y = cos(v.y);
+	temp.z = cos(v.z);
+	return temp;
+}
+
+CP_Color v3toColor(vec3 v) {
+	return CP_Color_Create(v.x, v.y, v.z, 255);
+}
+
+vec3 palette(float t) {
+	vec3 a = { 1.0, 1.0, 1.0 };
+	vec3 b = { 0.5, 0.5, 0.5 };
+	vec3 c = { 1.0, 1.0, 1.0 };
+	vec3 d = { 0.512, 0.143, 0.352 };
+
+	//return a + b * cos(6.28318 * (c * t + d));
+
+	vec3 temp = v3Scale(c, t);
+	temp = v3Add(temp, d);
+	temp = v3Scale(temp, 6.2831f);
+	temp = v3Cos(temp);
+	temp = v3Multiply(temp, b);
+	temp = v3Add(temp, a);
+	return temp;
 }
 
 void game_update(void) {
@@ -64,6 +124,8 @@ void game_update(void) {
 
 		float d = CP_Vector_Length(uv);
 
+		vec3 col = palette(d);
+
 		d = sin(d * 8 + CP_System_GetSeconds()) / 8;
 		d = fabs(d);
 
@@ -71,7 +133,10 @@ void game_update(void) {
 
 		//MAP the normalized vectors to RGB.
 		d = mapToRGB(d);
-		imgPixelData[i] = CP_Color_Create(d, d, d, 255);
+
+		col = v3Scale(col, d);
+		
+		imgPixelData[i] = v3toColor(col);
 	}
 	CP_Image_UpdatePixelData(mainImage, imgPixelData);
 	
